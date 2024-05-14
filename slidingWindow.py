@@ -4,7 +4,7 @@ import numpy as np
 import time
 from numpy.lib.stride_tricks import sliding_window_view
 from justpfm import justpfm
-from evaluation import rms_error
+from evaluation import evaluation_suite
 
 def print_time(start):
     elaped = time.time() - start
@@ -61,8 +61,7 @@ if not already_computed:
     justpfm.write_pfm(file_name=pfm_path, data=disparity_float32)
 else:
     disparity_values = justpfm.read_pfm(file_name=pfm_path)
-rms_error_val = rms_error(disparity_values, gt_pfm)
-print(f'rms_error_val: {rms_error_val}')
+evaluation_suite(disparity_values, gt_pfm, max_disparity)
 io.imshow(disparity_values)
 # io.imshow(gt_pfm)
 plt.show()
