@@ -23,6 +23,13 @@ def getWindowDotProduct(image1_windows, image2_windows, cache, disparity):
     cache[:,:,disparity] = windowDotProduct
     return windowDotProduct
 
+
+def getAbsoluteDifference(image1_windows, image2_windows, cache, disparity):
+    absolute = np.abs(image1_windows - image2_windows)
+    mean = np.mean(absolute, axis = (2,3))
+    cache[:,:,disparity] = mean
+    return mean
+
 start = time.time()
 image1 = io.imread("data/im0.png", as_gray=True)
 image2 = io.imread("data/im1.png", as_gray=True)
@@ -41,24 +48,26 @@ Einsum
 '''
 already_computed = True
 disparity_values = None
-pfm_path = "./results/slidingWindow.pfm"
+pfm_path = "./results/slidingWindow-absoluteDifference.pfm"
 if not already_computed:
     image1_windows = sliding_window_view(image1, window_size)
     print_time(start)
     image2_windows = sliding_window_view(image2, window_size)
     print_time(start)
-    res = getWindowDotProduct(image1_windows, image2_windows, cache, 0)
+    res = getAbsoluteDifference(image1_windows, image2_windows, cache, 0)
+    print_time(start)
     for disparity in range(max_disparity):
         if disparity == 0:
             continue
         image1, image1_windows = shiftOne(image1, image1_windows)
         image2, image2_windows = shiftOne(image2, image2_windows)
-        res = getWindowDotProduct(image1_windows, image2_windows, cache, disparity)
+        res = getAbsoluteDifference(image1_windows, image2_windows, cache, disparity)
         print_time(start)
-    disparity_values = np.argmax(cache, axis=2) 
+    disparity_values = np.argmin(cache, axis=2) 
     disparity_values = disparity_values / (max_disparity - 1)
     disparity_float32 = np.float32(disparity_values)      
     justpfm.write_pfm(file_name=pfm_path, data=disparity_float32)
+    # disparity_values = np.expand_dims(disparity_values, axis=2)
 else:
     disparity_values = justpfm.read_pfm(file_name=pfm_path)
 evaluation_suite(disparity_values, gt_pfm, max_disparity)
