@@ -30,6 +30,12 @@ def getAbsoluteDifference(image1_windows, image2_windows, cache, disparity):
     cache[:,:,disparity] = mean
     return mean
 
+def getSquaredDifference(image1_windows, image2_windows, cache, disparity):
+    squared_diff = np.square(image1_windows - image2_windows)
+    mean = np.mean(squared_diff, axis = (2,3))
+    cache[:,:,disparity] = mean
+    return mean
+
 start = time.time()
 image1 = io.imread("data/im0.png", as_gray=True)
 image2 = io.imread("data/im1.png", as_gray=True)
@@ -48,20 +54,20 @@ Einsum
 '''
 already_computed = True
 disparity_values = None
-pfm_path = "./results/slidingWindow-absoluteDifference.pfm"
+pfm_path = "./results/slidingWindow-squaredDifference.pfm"
 if not already_computed:
     image1_windows = sliding_window_view(image1, window_size)
     print_time(start)
     image2_windows = sliding_window_view(image2, window_size)
     print_time(start)
-    res = getAbsoluteDifference(image1_windows, image2_windows, cache, 0)
+    res = getSquaredDifference(image1_windows, image2_windows, cache, 0)
     print_time(start)
     for disparity in range(max_disparity):
         if disparity == 0:
             continue
         image1, image1_windows = shiftOne(image1, image1_windows)
         image2, image2_windows = shiftOne(image2, image2_windows)
-        res = getAbsoluteDifference(image1_windows, image2_windows, cache, disparity)
+        res = getSquaredDifference(image1_windows, image2_windows, cache, disparity)
         print_time(start)
     disparity_values = np.argmin(cache, axis=2) 
     disparity_values = disparity_values / (max_disparity - 1)
