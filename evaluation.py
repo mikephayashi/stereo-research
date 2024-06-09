@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from skimage import io
 from justpfm import justpfm
+from pathlib import Path
 
 def delete_edge(ground_truth, start_idx, end_idx, axis):
     ground_truth_reduced = np.delete(ground_truth, [i for i in range(start_idx, end_idx)], axis = axis)
@@ -93,40 +93,54 @@ def evaluation_suite(f, computed, ground_truth, max_disparity, results_map):
     quantiles = get_quantiles(computed, ground_truth, max_disparity)
     output(f, "quantiles", quantiles, results_map, quantiles_key)
     
+def generateDirNames():
+    dirNames = []
+    smoothings = ["gaussian", "median"]
+    fouriers = ["butterworth"]
+    thresholds = ["isodata", "li", "mean", "minimum", "otsu", "triangle", "yen"]
+    for smoothing in smoothings:
+        for fourier in fouriers:
+            for threshold in thresholds:
+                comboName = smoothing + fourier + threshold
+                dirNames.append(comboName)
+    return dirNames
+    
     
 if __name__ == '__main__':
-    max_disparity = 50
+    max_disparity = 30
     # image_names = ["Adirondack", "ArtL", "Jadeplant", "MotorcycleE", "Piano", "PianoL", "Pipes", "Playroom", "PlaytableP", "Recycle", "Shelves", "Teddy", "Vintage"]
     image_names = ["Adirondack"]
-    base_path = "./results/slidingWindow-dotProduct/"
-    for image_name in image_names:
-        results_map = {
-            rms_error_val_key: [],
-            bad_pixels_half_key: [],
-            bad_pixels_one_key: [],
-            bad_pixels_two_key: [],
-            bad_pixels_four_key: [],
-            quantiles_key: []
-        }
-        base_results_path = base_path + "/results/"
-        f = open(base_results_path + f"{image_name}.txt", "w")
-        for disparity in range(2, max_disparity + 1):
-            combined_name = f"{image_name}-{disparity}"
-            pfm_path = base_path + f"/pfm/{combined_name}.pfm"
-            gt_pfm = justpfm.read_pfm(file_name=f"./data/gt/{image_name}/disp0GT.pfm")
-            disparity_values = justpfm.read_pfm(file_name=pfm_path)
-            output(f, None, f"{image_name}-{disparity}", None, None)
-            evaluation_suite(f, disparity_values, gt_pfm, disparity, results_map)
-            output(f, None, "", None, None)
-            # io.imshow(disparity_values)
-            # plt.show()
-        f.close()
-        for current_key in keys_list:
-            x = [i for i in range(2, max_disparity + 1)]
-            y = results_map[current_key]
-            plt.plot(x, y)
-            plt.title(current_key)  # add title
-            # plt.show()
-            plt.savefig(base_results_path + current_key)
-            plt.close()
+    for dirName in generateDirNames():
+        base_path = f"./results/{dirName}/"
+        for image_name in image_names:
+            results_map = {
+                rms_error_val_key: [],
+                bad_pixels_half_key: [],
+                bad_pixels_one_key: [],
+                bad_pixels_two_key: [],
+                bad_pixels_four_key: [],
+                quantiles_key: []
+            }
+            base_results_path = base_path + "/results"
+            Path(base_results_path).mkdir(parents=True, exist_ok=True) 
+            f = open(base_results_path + f"/{image_name}.txt", "w")
+            for disparity in range(2, max_disparity + 1):
+                combined_name = f"{image_name}-{disparity}"
+                pfm_path = base_path + f"/pfm/{combined_name}.pfm"
+                gt_pfm = justpfm.read_pfm(file_name=f"./data/gt/{image_name}/disp0GT.pfm")
+                disparity_values = justpfm.read_pfm(file_name=pfm_path)
+                output(f, None, f"{image_name}-{disparity}", None, None)
+                evaluation_suite(f, disparity_values, gt_pfm, disparity, results_map)
+                output(f, None, "", None, None)
+                # io.imshow(disparity_values)
+                # plt.show()
+            f.close()
+            for current_key in keys_list:
+                x = [i for i in range(2, max_disparity + 1)]
+                y = results_map[current_key]
+                plt.plot(x, y)
+                plt.title(current_key)  # add title
+                # plt.show()
+                plt.savefig(base_results_path + current_key)
+                plt.close()
             

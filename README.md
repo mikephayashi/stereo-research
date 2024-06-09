@@ -37,3 +37,31 @@ bad_match_val 1: 0.9180292702372606
 bad_match_val 2: 0.7791403617148802
 bad_match_val 4: 0.45563486700744127
 quantiles: [3.72811306 6.8658843  7.18269987 7.62457155]
+
+# Filters
+## Smoothing (spatial)
+skimage.filters.gaussian
+skimage.filters.median
+## Sharpening (edges) 
+hessian
+skimage.filters.prewitt 
+skimage.filters.roberts
+skimage.filters.laplace
+skimage.filters.scharr
+skimage.filters.sobel
+## Fourier (Band Filter)
+skimage.filters.gabor CHECK
+skimage.filters.butterworth
+difference_of_gaussians CHECK
+## Thresholding
+skimage.filters.threshold_mean
+skimage.filters.apply_hysteresis_threshold CHECK
+skimage.filters.try_all_threshold
+
+isodata
+li
+mean
+minimum
+otsu
+triangle
+yen
