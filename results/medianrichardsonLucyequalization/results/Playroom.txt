@@ -1,0 +1,8 @@
+Playroom-30
+rms_error_val: 14.0656
+bad_match_val: 0.9795575068557834
+bad_match_val: 0.9434365711397248
+bad_match_val: 0.901779363335331
+bad_match_val: 0.8187267690342578
+quantiles: [10.54356623 22.98894081 24.74108868 29.        ]
+

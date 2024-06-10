@@ -1,0 +1,8 @@
+Piano-30
+rms_error_val: 13.291553
+bad_match_val: 0.9814558995543315
+bad_match_val: 0.950623713706155
+bad_match_val: 0.9150494529086898
+bad_match_val: 0.8438435570559233
+quantiles: [11.30104828 20.68613052 22.38312416 29.        ]
+
